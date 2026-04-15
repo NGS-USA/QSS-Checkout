@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { stripeProducts, formatPrice } from '../stripe-config';
+import { stripeProducts, formatPrice, getPaymentSchedule } from '../stripe-config';
 import { CheckCircle, Loader2, ShieldAlert } from 'lucide-react';
 
 export function CheckoutPage() {
@@ -222,9 +222,26 @@ export function CheckoutPage() {
                         {formatPrice(total, 'usd')}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-400 mb-4">
                       {Array.from(selectedProducts).length} {Array.from(selectedProducts).length === 1 ? 'package' : 'packages'} selected
                     </p>
+
+                    {total > 0 && (
+                      <div className="bg-[#0a1628]/60 rounded-lg p-4 border border-cyan-400/20">
+                        <p className="text-cyan-400 text-xs font-bold uppercase tracking-wider mb-3">Payment Schedule</p>
+                        <div className="space-y-2">
+                          {getPaymentSchedule(total).map((installment, i) => (
+                            <div key={i} className="flex justify-between items-center">
+                              <span className="text-gray-400 text-xs">{installment.label}</span>
+                              <span className="text-white text-xs font-semibold">{formatPrice(installment.amount, 'usd')}</span>
+                            </div>
+                          ))}
+                        </div>
+                        <p className="text-gray-500 text-xs mt-3 pt-3 border-t border-gray-700">
+                          Firm fixed price · Hourly advisory outside scope: $250/hr
+                        </p>
+                      </div>
+                    )}
                   </div>
 
                   {message && (
