@@ -2,12 +2,7 @@ import 'jsr:@supabase/functions-js/edge-runtime.d.ts';
 import Stripe from 'npm:stripe@17.7.0';
 
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY')!;
-const stripe = new Stripe(stripeSecret, {
-  appInfo: {
-    name: 'Bolt Integration',
-    version: '1.0.0',
-  },
-});
+const stripe = new Stripe(stripeSecret);
 
 // Helper function to create responses with CORS headers
 function corsResponse(body: string | object | null, status = 200) {
