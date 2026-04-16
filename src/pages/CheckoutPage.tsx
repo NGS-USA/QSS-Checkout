@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { stripeProducts, formatPrice, getPaymentSchedule } from '../stripe-config';
-import { CheckCircle, Loader2, ShieldAlert } from 'lucide-react';
+import { CheckCircle, Loader2, ShieldAlert, Info } from 'lucide-react';
 
 export function CheckoutPage() {
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
@@ -35,13 +35,7 @@ export function CheckoutPage() {
     setMessage(null);
 
     try {
-      const selectedProductsArray = Array.from(selectedProducts).map(priceId => {
-        const product = stripeProducts.find(p => p.priceId === priceId);
-        return {
-          price_id: priceId,
-          name: product?.name || 'Product'
-        };
-      });
+      const kickoffAmount = getPaymentSchedule(total)[0].amount;
 
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
         method: 'POST',
@@ -50,6 +44,7 @@ export function CheckoutPage() {
         },
         body: JSON.stringify({
           price_ids: Array.from(selectedProducts),
+          kickoff_amount: Math.round(kickoffAmount * 100), // in cents for Stripe
           mode: 'payment',
           success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${window.location.origin}/checkout`,
@@ -75,6 +70,8 @@ export function CheckoutPage() {
   };
 
   const total = calculateTotal();
+  const paymentSchedule = total > 0 ? getPaymentSchedule(total) : [];
+  const kickoffInstallment = paymentSchedule[0] ?? null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#0a1628] to-[#0f2542]">
@@ -215,25 +212,28 @@ export function CheckoutPage() {
                     )}
                   </div>
 
-                  <div className="mb-6">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-white font-semibold">Total</span>
-                      <span className="text-3xl font-bold text-cyan-400">
-                        {formatPrice(total, 'usd')}
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-400 mb-4">
-                      {Array.from(selectedProducts).length} {Array.from(selectedProducts).length === 1 ? 'package' : 'packages'} selected
-                    </p>
+                  {/* Full contract value */}
+                  <div className="mb-2 flex justify-between items-center">
+                    <span className="text-gray-400 text-sm">Contract Total</span>
+                    <span className="text-gray-300 font-semibold text-sm line-through">
+                      {formatPrice(total, 'usd')}
+                    </span>
+                  </div>
 
-                    {total > 0 && (
-                      <div className="bg-[#0a1628]/60 rounded-lg p-4 border border-cyan-400/20">
-                        <p className="text-cyan-400 text-xs font-bold uppercase tracking-wider mb-3">Payment Schedule</p>
+                  {/* Payment schedule breakdown */}
+                  {kickoffInstallment && (
+                    <div className="mb-6">
+                      <div className="bg-[#0a1628]/60 rounded-lg p-4 border border-cyan-400/20 mb-4">
+                        <p className="text-cyan-400 text-xs font-bold uppercase tracking-wider mb-3">Full Payment Schedule</p>
                         <div className="space-y-2">
-                          {getPaymentSchedule(total).map((installment, i) => (
+                          {paymentSchedule.map((installment, i) => (
                             <div key={i} className="flex justify-between items-center">
-                              <span className="text-gray-400 text-xs">{installment.label}</span>
-                              <span className="text-white text-xs font-semibold">{formatPrice(installment.amount, 'usd')}</span>
+                              <span className={`text-xs ${i === 0 ? 'text-cyan-300 font-semibold' : 'text-gray-400'}`}>
+                                {installment.label}
+                              </span>
+                              <span className={`text-xs font-semibold ${i === 0 ? 'text-cyan-300' : 'text-white'}`}>
+                                {formatPrice(installment.amount, 'usd')}
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -241,8 +241,33 @@ export function CheckoutPage() {
                           Firm fixed price · Hourly advisory outside scope: $250/hr
                         </p>
                       </div>
-                    )}
-                  </div>
+
+                      {/* Due today callout */}
+                      <div className="bg-cyan-400/10 border border-cyan-400/40 rounded-lg p-4">
+                        <div className="flex items-start gap-2 mb-2">
+                          <Info className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
+                          <p className="text-cyan-300 text-xs font-semibold uppercase tracking-wider">Due at Checkout (Kickoff)</p>
+                        </div>
+                        <div className="flex justify-between items-baseline">
+                          <span className="text-gray-300 text-sm">{kickoffInstallment.percent}% of contract</span>
+                          <span className="text-3xl font-bold text-cyan-400">
+                            {formatPrice(kickoffInstallment.amount, 'usd')}
+                          </span>
+                        </div>
+                        <p className="text-gray-400 text-xs mt-2">
+                          Remaining {formatPrice(total - kickoffInstallment.amount, 'usd')} invoiced per milestone.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {!kickoffInstallment && (
+                    <div className="mb-6">
+                      <p className="text-xs text-gray-400 text-center">
+                        {Array.from(selectedProducts).length} {Array.from(selectedProducts).length === 1 ? 'package' : 'packages'} selected
+                      </p>
+                    </div>
+                  )}
 
                   {message && (
                     <div className={`mb-4 p-3 rounded-lg text-sm ${
@@ -267,7 +292,7 @@ export function CheckoutPage() {
                     ) : (
                       <>
                         <CheckCircle className="w-4 h-4 mr-2" />
-                        Proceed to Payment
+                        Pay {kickoffInstallment ? formatPrice(kickoffInstallment.amount, 'usd') : ''} to Start
                       </>
                     )}
                   </button>
