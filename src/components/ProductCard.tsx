@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { StripeProduct, formatPrice } from '../stripe-config';
-import { supabase } from '../lib/supabase';
 import { CheckCircle, Loader2 } from 'lucide-react';
 
 interface ProductCardProps {

@@ -37,7 +37,7 @@ export function CheckoutPage() {
     try {
       const kickoffAmount = getPaymentSchedule(total)[0].amount;
 
-      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
+      const response = await fetch('/api/stripe-checkout', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -58,7 +58,7 @@ export function CheckoutPage() {
       }
 
       if (data.url) {
-        window.open(data.url, 'stripe-checkout', 'width=500,height=700,left=200,top=100');
+        window.location.href = data.url;
       } else {
         throw new Error('No checkout URL received');
       }
