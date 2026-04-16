@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { stripeProducts, formatPrice, getPaymentSchedule } from '../stripe-config';
+import { supabase } from '../lib/supabase';
 import { CheckCircle, Loader2, ShieldAlert, Info } from 'lucide-react';
 
 export function CheckoutPage() {
@@ -35,12 +36,21 @@ export function CheckoutPage() {
     setMessage(null);
 
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (!session) {
+        setMessage({ type: 'error', text: 'Please log in to make a purchase' });
+        setLoading(false);
+        return;
+      }
+
       const kickoffAmount = getPaymentSchedule(total)[0].amount;
 
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           price_ids: Array.from(selectedProducts),

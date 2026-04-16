@@ -63,6 +63,18 @@ Deno.serve(async (req) => {
       return corsResponse({ error: 'mode must be payment or subscription' }, 400);
     }
 
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return corsResponse({ error: 'Missing Authorization header' }, 401);
+    }
+
+    const token = authHeader.replace('Bearer ', '');
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+
+    if (authError || !user) {
+      return corsResponse({ error: 'Unauthorized' }, 401);
+    }
+
     const { data: customer, error: getCustomerError } = await supabase
       .from('stripe_customers')
       .select('customer_id')
