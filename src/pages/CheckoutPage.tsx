@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { stripeProducts, formatPrice, getPaymentSchedule } from '../stripe-config';
-import { supabase } from '../lib/supabase';
 import { CheckCircle, Loader2, ShieldAlert, Info } from 'lucide-react';
 
 export function CheckoutPage() {
@@ -36,25 +35,16 @@ export function CheckoutPage() {
     setMessage(null);
 
     try {
-      const { data: { session } } = await supabase.auth.getSession();
-
-      if (!session) {
-        setMessage({ type: 'error', text: 'Please log in to make a purchase' });
-        setLoading(false);
-        return;
-      }
-
       const kickoffAmount = getPaymentSchedule(total)[0].amount;
 
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-checkout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           price_ids: Array.from(selectedProducts),
-          kickoff_amount: Math.round(kickoffAmount * 100), // in cents for Stripe
+          kickoff_amount: Math.round(kickoffAmount * 100),
           mode: 'payment',
           success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
           cancel_url: `${window.location.origin}/checkout`,
@@ -68,7 +58,7 @@ export function CheckoutPage() {
       }
 
       if (data.url) {
-        window.location.href = data.url;
+        window.open(data.url, 'stripe-checkout', 'width=500,height=700,left=200,top=100');
       } else {
         throw new Error('No checkout URL received');
       }
