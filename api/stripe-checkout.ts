@@ -5,8 +5,10 @@ import { Redis } from '@upstash/redis';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-const ALLOWED_ORIGIN = 'https://qss-checkout.vercel.app';
+// ── COMPLIANCE FIX #006: CORS from env var, not hardcoded ─────────────────────
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? 'https://qss-checkout.vercel.app';
 
+// ── COMPLIANCE FIX #001: Server-side price ID allowlist ───────────────────────
 const ALLOWED_PRICE_IDS = new Set([
   'price_1TMSh0GgFLISItFOGwKcmQB0',
   'price_1TMSf6GgFLISItFOagQCQd5j',
@@ -16,10 +18,7 @@ const ALLOWED_PRICE_IDS = new Set([
   'price_1TMSWQGgFLISItFODtMv7CDz',
 ]);
 
-// ── COMPLIANCE FIX: IP-based rate limiter (PCI Req 6.4.1) ────────────────────
-// 10 checkout attempts per IP per 60 seconds.
-// Upstash Redis persists counts across all serverless function instances,
-// which in-memory maps cannot do.
+// ── Rate limiter ──────────────────────────────────────────────────────────────
 const ratelimit = new Ratelimit({
   redis: Redis.fromEnv(),
   limiter: Ratelimit.slidingWindow(10, '60 s'),
@@ -39,22 +38,21 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).end();
 
-  const ip =
-    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ?? 'unknown';
+  // ── COMPLIANCE FIX #007: Reject requests with no determinable IP ──────────
+  const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim();
+  if (!ip) return res.status(400).json({ error: 'Unable to determine request origin.' });
 
-  // ── COMPLIANCE FIX: Enforce rate limit before any processing ─────────────────
-  const { success, limit, remaining, reset } = await ratelimit.limit(ip);
+  const { success, reset } = await ratelimit.limit(ip);
   if (!success) {
-    console.warn('[stripe-checkout] Rate limit exceeded:', { ip, limit, reset });
+    console.warn('[stripe-checkout] Rate limit exceeded:', { ip });
     res.setHeader('Retry-After', String(Math.ceil((reset - Date.now()) / 1000)));
-    return res.status(429).json({
-      error: 'Too many requests. Please wait a moment and try again.',
-    });
+    return res.status(429).json({ error: 'Too many requests. Please wait a moment and try again.' });
   }
 
   try {
-    const { price_ids, mode } = req.body;
+    const { price_ids, kickoff_amount } = req.body;
 
+    // ── Validate price IDs ────────────────────────────────────────────────────
     if (!Array.isArray(price_ids) || price_ids.length === 0) {
       return res.status(400).json({ error: 'At least one service must be selected.' });
     }
@@ -65,24 +63,56 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Invalid selection. Please refresh and try again.' });
     }
 
+    // ── BUSINESS LOGIC FIX #001: Validate kickoff_amount ─────────────────────
+    // kickoff_amount arrives in cents (already multiplied by 100 in CheckoutPage).
+    // We validate it is a positive integer before passing to Stripe.
+    if (!Number.isInteger(kickoff_amount) || kickoff_amount < 100) {
+      return res.status(400).json({ error: 'Invalid kickoff amount.' });
+    }
+
+    // ── COMPLIANCE FIX #004: mode hardcoded — never from client ───────────────
+    // All products are one-time payments. There is no reason for the client
+    // to control this. Hardcoding prevents mode:"setup" attacks.
     const session = await stripe.checkout.sessions.create({
-      mode: mode || 'payment',
+      mode: 'payment',
       billing_address_collection: 'required',
       phone_number_collection: { enabled: true },
-      line_items: price_ids.map((priceId: string) => ({
-        price: priceId,
-        quantity: 1,
-      })),
+
+      // ── BUSINESS LOGIC FIX #001: Charge only the kickoff installment ─────
+      // The customer sees the kickoff amount on the button and that is exactly
+      // what they are charged here. Remaining milestones are invoiced separately.
+      line_items: [
+        {
+          quantity: 1,
+          price_data: {
+            currency: 'usd',
+            unit_amount: kickoff_amount, // in cents, validated above
+            product_data: {
+              name: 'Project Kickoff Payment',
+              description: `Kickoff installment for ${price_ids.length} selected service${price_ids.length > 1 ? 's' : ''}. Remaining milestones will be invoiced separately.`,
+            },
+          },
+        },
+      ],
+
+      // Hardcoded server-side — never from client (PCI Req 6.2.4)
       success_url: 'https://qss-checkout.vercel.app/success?session_id={CHECKOUT_SESSION_ID}',
       cancel_url: 'https://qss-checkout.vercel.app/checkout',
+
+      // Store which services were purchased for onboarding/CRM use
+      metadata: {
+        price_ids: price_ids.join(','),
+        kickoff_amount_cents: String(kickoff_amount),
+      },
     });
 
+    // ── Structured audit log (PCI Req 10.2) ───────────────────────────────────
     console.info(JSON.stringify({
       event: 'checkout_session_created',
       sessionId: session.id,
       priceIds: price_ids,
+      kickoffAmountCents: kickoff_amount,
       ip,
-      remaining, // log remaining quota for this IP
       timestamp: new Date().toISOString(),
     }));
 
