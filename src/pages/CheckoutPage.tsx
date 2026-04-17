@@ -35,37 +35,44 @@ export function CheckoutPage() {
     setMessage(null);
 
     try {
-      const kickoffAmount = getPaymentSchedule(total)[0].amount;
+      const currentTotal = calculateTotal();
+
+      if (currentTotal <= 0) {
+        setMessage({ type: 'error', text: 'Please select at least one package.' });
+        setLoading(false);
+        return;
+      }
+
+      const schedule = getPaymentSchedule(currentTotal);
+      const kickoffAmount = schedule[0].amount;
+      const kickoffCents = Math.round(kickoffAmount * 100);
 
       const response = await fetch('/api/stripe-checkout', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           price_ids: Array.from(selectedProducts),
-          kickoff_amount: Math.round(kickoffAmount * 100),
-          mode: 'payment',
-          success_url: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${window.location.origin}/checkout`,
+          kickoff_amount: kickoffCents, // cents, validated server-side
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to create checkout session');
+        const friendlyError =
+          response.status === 429 ? 'Too many requests. Please wait a moment and try again.' :
+          response.status === 400 ? 'Invalid selection. Please refresh and try again.' :
+          'Something went wrong. Please try again.';
+        throw new Error(friendlyError);
       }
 
       if (data.url) {
         window.location.href = data.url;
       } else {
-        throw new Error('No checkout URL received');
+        throw new Error('Something went wrong. Please try again.');
       }
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Failed to start checkout process' });
-    } finally {
-      setLoading(false);
+      setMessage({ type: 'error', text: error.message });
     }
   };
 
