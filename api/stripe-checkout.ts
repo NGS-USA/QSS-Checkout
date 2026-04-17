@@ -5,10 +5,8 @@ import { Redis } from '@upstash/redis';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-// ── COMPLIANCE FIX #006: CORS from env var, not hardcoded ─────────────────────
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? 'https://qss-checkout.vercel.app';
 
-// ── COMPLIANCE FIX #001: Server-side price ID allowlist ───────────────────────
 const ALLOWED_PRICE_IDS = new Set([
   'price_1TMSh0GgFLISItFOGwKcmQB0',
   'price_1TMSf6GgFLISItFOagQCQd5j',
@@ -38,7 +36,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).end();
 
-  // ── COMPLIANCE FIX #007: Reject requests with no determinable IP ──────────
   const ip = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim();
   if (!ip) return res.status(400).json({ error: 'Unable to determine request origin.' });
 
@@ -63,24 +60,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'Invalid selection. Please refresh and try again.' });
     }
 
-    // ── BUSINESS LOGIC FIX #001: Validate kickoff_amount ─────────────────────
     // kickoff_amount arrives in cents (already multiplied by 100 in CheckoutPage).
     // We validate it is a positive integer before passing to Stripe.
     if (!Number.isInteger(kickoff_amount) || kickoff_amount < 100) {
       return res.status(400).json({ error: 'Invalid kickoff amount.' });
     }
 
-    // ── COMPLIANCE FIX #004: mode hardcoded — never from client ───────────────
-    // All products are one-time payments. There is no reason for the client
-    // to control this. Hardcoding prevents mode:"setup" attacks.
     const session = await stripe.checkout.sessions.create({
       mode: 'payment',
       billing_address_collection: 'required',
       phone_number_collection: { enabled: true },
 
-      // ── BUSINESS LOGIC FIX #001: Charge only the kickoff installment ─────
-      // The customer sees the kickoff amount on the button and that is exactly
-      // what they are charged here. Remaining milestones are invoiced separately.
+
       line_items: [
         {
           quantity: 1,
