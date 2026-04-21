@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { stripeProducts, formatPrice, getPaymentSchedule } from '../stripe-config';
-import { CheckCircle, Loader2, ShieldAlert, Info } from 'lucide-react';
+import { CheckCircle, Loader2, Info } from 'lucide-react';
 
 export function CheckoutPage() {
   const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
@@ -86,9 +86,9 @@ export function CheckoutPage() {
         <div className="pt-8 pb-12">
           <div className="flex items-center justify-between mb-12">
             <div className="flex items-center space-x-3">
-              <ShieldAlert className="w-10 h-10 text-cyan-400" />
+              <img src="/logo.png" alt="Company Logo" className="h-10" />
               <div>
-                <h1 className="text-3xl font-bold text-white">QUANTUM SHIELD</h1>
+                <h1 className="text-3xl font-bold text-white">QUANTUM SHIELD Secure</h1>
                 <p className="text-cyan-400 text-sm font-semibold">Compliance Consulting</p>
               </div>
             </div>
