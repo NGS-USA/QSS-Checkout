@@ -1,3 +1,12 @@
+export interface StripeProduct {
+  priceId: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  mode: 'payment' | 'subscription';
+}
+
 export const stripeProducts: StripeProduct[] = [
   {
     priceId: 'price_1TMSZzGgFLISItFOmYnpewEP',
@@ -48,6 +57,13 @@ export const stripeProducts: StripeProduct[] = [
     mode: 'payment'
   },
 ];
+
+export interface PaymentSchedule {
+  label: string;
+  percent: number;
+  amount: number;
+}
+
 export function getPaymentSchedule(total: number): PaymentSchedule[] {
   if (total < 10000) {
     return [
@@ -67,4 +83,15 @@ export function getPaymentSchedule(total: number): PaymentSchedule[] {
       { label: 'Due at Final Readiness Review (30%)', percent: 30, amount: total * 0.3 },
     ];
   }
+}
+
+export function formatPrice(price: number, currency: string): string {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency.toUpperCase(),
+  }).format(price);
+}
+
+export function getProductByPriceId(priceId: string): StripeProduct | undefined {
+  return stripeProducts.find(product => product.priceId === priceId);
 }
