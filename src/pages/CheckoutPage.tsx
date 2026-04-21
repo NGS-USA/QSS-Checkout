@@ -52,7 +52,7 @@ export function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           price_ids: Array.from(selectedProducts),
-          kickoff_amount: kickoffCents, // cents, validated server-side
+          kickoff_amount: kickoffCents,
         }),
       });
 
@@ -109,91 +109,105 @@ export function CheckoutPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
             <div className="lg:col-span-2">
-              <div className="space-y-4">
-                <div className="bg-gradient-to-r from-[#1a3a52] to-[#0f2542] rounded-lg p-6 mb-6 border border-cyan-400/30">
-                  <h3 className="text-white font-bold text-lg mb-2">Level 1 — FCI Environments</h3>
-                  <p className="text-gray-400 text-sm">Entry-level compliance packages</p>
-                </div>
 
-                <div className="space-y-4">
-                  {stripeProducts.slice(3).map((product) => (
-                    <div
-                      key={product.priceId}
-                      onClick={() => toggleProduct(product.priceId)}
-                      className={`p-6 rounded-lg cursor-pointer transition-all border-2 ${
-                        selectedProducts.has(product.priceId)
-                          ? 'bg-cyan-500/10 border-cyan-400 shadow-lg shadow-cyan-400/20'
-                          : 'bg-gradient-to-r from-[#1a3a52] to-[#0f2542] border-gray-600 hover:border-cyan-400/50'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="text-white font-bold text-lg mb-2">{product.name}</h4>
-                          <p className="text-gray-400 text-sm leading-relaxed">{product.description}</p>
-                        </div>
-                        <div className="flex flex-col items-end ml-4">
-                          <div className="text-2xl font-bold text-cyan-400">
-                            {formatPrice(product.price, product.currency)}
-                          </div>
-                          <div className={`w-6 h-6 rounded border-2 mt-2 flex items-center justify-center transition-all ${
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+                {/* Level 1 Column */}
+                <div>
+                  <div className="bg-gradient-to-r from-[#1a3a52] to-[#0f2542] rounded-lg p-6 mb-4 border border-cyan-400/30">
+                    <h3 className="text-white font-bold text-lg mb-2">Level 1 — FCI Environments</h3>
+                    <p className="text-gray-400 text-sm">Entry-level compliance packages</p>
+                  </div>
+                  <div className="space-y-4">
+                    {['price_1TMSWQGgFLISItFODtMv7CDz', 'price_1TMSbKGgFLISItFO94D6jQsT', 'price_1TMSf6GgFLISItFOagQCQd5j'].map((id) => {
+                      const product = stripeProducts.find(p => p.priceId === id)!;
+                      return (
+                        <div
+                          key={product.priceId}
+                          onClick={() => toggleProduct(product.priceId)}
+                          className={`p-6 rounded-lg cursor-pointer transition-all border-2 ${
                             selectedProducts.has(product.priceId)
-                              ? 'bg-cyan-400 border-cyan-400'
-                              : 'border-gray-600'
-                          }`}>
-                            {selectedProducts.has(product.priceId) && (
-                              <CheckCircle className="w-5 h-5 text-[#0a1628]" />
-                            )}
+                              ? 'bg-cyan-500/10 border-cyan-400 shadow-lg shadow-cyan-400/20'
+                              : 'bg-gradient-to-r from-[#1a3a52] to-[#0f2542] border-gray-600 hover:border-cyan-400/50'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="text-white font-bold text-lg mb-2">{product.name}</h4>
+                              <p className="text-gray-400 text-sm leading-relaxed">{product.description}</p>
+                            </div>
+                            <div className="flex flex-col items-end ml-4">
+                              <div className="text-2xl font-bold text-cyan-400">
+                                {formatPrice(product.price, product.currency)}
+                              </div>
+                              <div className={`w-6 h-6 rounded border-2 mt-2 flex items-center justify-center transition-all ${
+                                selectedProducts.has(product.priceId)
+                                  ? 'bg-cyan-400 border-cyan-400'
+                                  : 'border-gray-600'
+                              }`}>
+                                {selectedProducts.has(product.priceId) && (
+                                  <CheckCircle className="w-5 h-5 text-[#0a1628]" />
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    })}
+                  </div>
                 </div>
 
-                <div className="bg-gradient-to-r from-[#1a3a52] to-[#0f2542] rounded-lg p-6 my-8 border border-cyan-400/30">
-                  <h3 className="text-white font-bold text-lg mb-2">Level 2 — 110 Requirements</h3>
-                  <p className="text-gray-400 text-sm">Advanced compliance packages</p>
-                </div>
-
-                <div className="space-y-4">
-                  {stripeProducts.slice(0, 3).map((product) => (
-                    <div
-                      key={product.priceId}
-                      onClick={() => toggleProduct(product.priceId)}
-                      className={`p-6 rounded-lg cursor-pointer transition-all border-2 ${
-                        selectedProducts.has(product.priceId)
-                          ? 'bg-cyan-500/10 border-cyan-400 shadow-lg shadow-cyan-400/20'
-                          : 'bg-gradient-to-r from-[#1a3a52] to-[#0f2542] border-gray-600 hover:border-cyan-400/50'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="text-white font-bold text-lg mb-2">{product.name}</h4>
-                          <p className="text-gray-400 text-sm leading-relaxed">{product.description}</p>
-                        </div>
-                        <div className="flex flex-col items-end ml-4">
-                          <div className="text-2xl font-bold text-cyan-400">
-                            {formatPrice(product.price, product.currency)}
-                          </div>
-                          <div className={`w-6 h-6 rounded border-2 mt-2 flex items-center justify-center transition-all ${
+                {/* Level 2 Column */}
+                <div>
+                  <div className="bg-gradient-to-r from-[#1a3a52] to-[#0f2542] rounded-lg p-6 mb-4 border border-cyan-400/30">
+                    <h3 className="text-white font-bold text-lg mb-2">Level 2 — 110 Requirements</h3>
+                    <p className="text-gray-400 text-sm">Advanced compliance packages</p>
+                  </div>
+                  <div className="space-y-4">
+                    {['price_1TMSZzGgFLISItFOmYnpewEP', 'price_1TMSdPGgFLISItFO33dVhDwu', 'price_1TMSh0GgFLISItFOGwKcmQB0'].map((id) => {
+                      const product = stripeProducts.find(p => p.priceId === id)!;
+                      return (
+                        <div
+                          key={product.priceId}
+                          onClick={() => toggleProduct(product.priceId)}
+                          className={`p-6 rounded-lg cursor-pointer transition-all border-2 ${
                             selectedProducts.has(product.priceId)
-                              ? 'bg-cyan-400 border-cyan-400'
-                              : 'border-gray-600'
-                          }`}>
-                            {selectedProducts.has(product.priceId) && (
-                              <CheckCircle className="w-5 h-5 text-[#0a1628]" />
-                            )}
+                              ? 'bg-cyan-500/10 border-cyan-400 shadow-lg shadow-cyan-400/20'
+                              : 'bg-gradient-to-r from-[#1a3a52] to-[#0f2542] border-gray-600 hover:border-cyan-400/50'
+                          }`}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <h4 className="text-white font-bold text-lg mb-2">{product.name}</h4>
+                              <p className="text-gray-400 text-sm leading-relaxed">{product.description}</p>
+                            </div>
+                            <div className="flex flex-col items-end ml-4">
+                              <div className="text-2xl font-bold text-cyan-400">
+                                {formatPrice(product.price, product.currency)}
+                              </div>
+                              <div className={`w-6 h-6 rounded border-2 mt-2 flex items-center justify-center transition-all ${
+                                selectedProducts.has(product.priceId)
+                                  ? 'bg-cyan-400 border-cyan-400'
+                                  : 'border-gray-600'
+                              }`}>
+                                {selectedProducts.has(product.priceId) && (
+                                  <CheckCircle className="w-5 h-5 text-[#0a1628]" />
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    })}
+                  </div>
                 </div>
 
-                <p className="text-gray-500 text-xs italic mt-6">
-                  All packages are firm-fixed-price. Quantum Shield Secure provides readiness consulting only — we do not issue certifications or guarantee assessment outcomes.
-                </p>
               </div>
+
+              <p className="text-gray-500 text-xs italic mt-6">
+                All packages are firm-fixed-price. Quantum Shield Secure provides readiness consulting only — we do not issue certifications or guarantee assessment outcomes.
+              </p>
+
             </div>
 
             <div className="lg:col-span-1">
@@ -219,7 +233,6 @@ export function CheckoutPage() {
                     )}
                   </div>
 
-                  {/* Full contract value */}
                   <div className="mb-2 flex justify-between items-center">
                     <span className="text-gray-400 text-sm">Contract Total</span>
                     <span className="text-gray-300 font-semibold text-sm line-through">
@@ -227,7 +240,6 @@ export function CheckoutPage() {
                     </span>
                   </div>
 
-                  {/* Payment schedule breakdown */}
                   {kickoffInstallment && (
                     <div className="mb-6">
                       <div className="bg-[#0a1628]/60 rounded-lg p-4 border border-cyan-400/20 mb-4">
@@ -249,7 +261,6 @@ export function CheckoutPage() {
                         </p>
                       </div>
 
-                      {/* Due today callout */}
                       <div className="bg-cyan-400/10 border border-cyan-400/40 rounded-lg p-4">
                         <div className="flex items-start gap-2 mb-2">
                           <Info className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
