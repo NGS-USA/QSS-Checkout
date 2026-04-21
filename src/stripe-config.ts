@@ -48,3 +48,23 @@ export const stripeProducts: StripeProduct[] = [
     mode: 'payment'
   },
 ];
+export function getPaymentSchedule(total: number): PaymentSchedule[] {
+  if (total < 10000) {
+    return [
+      { label: 'Due at Kickoff (50%)', percent: 50, amount: total * 0.5 },
+      { label: 'Due at Final Delivery (50%)', percent: 50, amount: total * 0.5 },
+    ];
+  } else if (total <= 25000) {
+    return [
+      { label: 'Due at Kickoff (40%)', percent: 40, amount: total * 0.4 },
+      { label: 'Due at Midpoint (40%)', percent: 40, amount: total * 0.4 },
+      { label: 'Due at Final Readout (20%)', percent: 20, amount: total * 0.2 },
+    ];
+  } else {
+    return [
+      { label: 'Due at Kickoff (40%)', percent: 40, amount: total * 0.4 },
+      { label: 'Due at Document Package Delivery (30%)', percent: 30, amount: total * 0.3 },
+      { label: 'Due at Final Readiness Review (30%)', percent: 30, amount: total * 0.3 },
+    ];
+  }
+}
