@@ -80,7 +80,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
             unit_amount: kickoff_amount, // in cents, validated above
             product_data: {
               name: 'Project Kickoff Payment',
-              description: `Kickoff installment for ${price_ids.length} selected service${price_ids.length > 1 ? 's' : ''}. Remaining milestones will be invoiced separately.`,
+              description: `Kickoff installment for: ${price_ids.map((id: string) => {
+                const names: Record<string, string> = {
+                  'price_1TMSh0GgFLISItFOGwKcmQB0': 'Readiness Build-Out',
+                  'price_1TMSf6GgFLISItFOagQCQd5j': 'Readiness Build-Out',
+                  'price_1TMSdPGgFLISItFO33dVhDwu': 'Gap Assessment & Evidence Roadmap',
+                  'price_1TMSbKGgFLISItFO94D6jQsT': 'Guided Readiness',
+                  'price_1TMSZzGgFLISItFOmYnpewEP': 'Readiness Review',
+                  'price_1TMSWQGgFLISItFODtMv7CDz': 'Pre-Assessment Review',
+                };
+                return names[id] ?? id;
+              }).join(', ')}. Remaining milestones will be invoiced separately.`,
             },
           },
         },
