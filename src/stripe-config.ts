@@ -10,7 +10,7 @@ export interface StripeProduct {
 export const stripeProducts: StripeProduct[] = [
   {
     priceId: 'price_1TMSh0GgFLISItFOGwKcmQB0',
-    name: 'Readiness Build-Out',
+    name: 'Readiness Build-Out (Lvl 2)',
     description: 'One firm drives SSP, evidence packaging, mock interview prep.',
     price: 32500.00,
     currency: 'usd',
@@ -18,7 +18,7 @@ export const stripeProducts: StripeProduct[] = [
   },
   {
     priceId: 'price_1TMSf6GgFLISItFOagQCQd5j',
-    name: 'Readiness Build-Out',
+    name: 'Readiness Build-Out (Lvl 1)',
     description: 'Needs drafting support, narrative help, and hands-on project leadership.',
     price: 18500.00,
     currency: 'usd',
