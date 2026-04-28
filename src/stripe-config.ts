@@ -6,7 +6,6 @@ export interface StripeProduct {
   price: number;
   currency: string;
   mode: 'payment' | 'subscription';
-  includes: string[];
 }
 
 export const stripeProducts: StripeProduct[] = [
