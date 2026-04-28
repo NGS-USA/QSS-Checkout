@@ -56,7 +56,7 @@ export function CheckoutPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           price_ids: Array.from(selectedProducts),
-          kickoff_amount: kickoffCents, // cents, validated server-side
+          kickoff_amount: kickoffCents,
         }),
       });
 
@@ -134,16 +134,6 @@ export function CheckoutPage() {
                         <div className="flex-1">
                           <h4 className="text-white font-bold text-lg mb-2">{product.name}</h4>
                           <p className="text-gray-400 text-sm leading-relaxed">{product.description}</p>
-                          {selectedProducts.has(product.priceId) && (
-                            <ul className="mt-3 space-y-1">
-                              {product.includes.map((item, i) => (
-                                <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                                  <CheckCircle className="w-3 h-3 text-cyan-400 flex-shrink-0 mt-0.5" />
-                                  {item}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
                         </div>
                         <div className="flex flex-col items-end ml-4">
                           <div className="text-2xl font-bold text-cyan-400">
@@ -184,16 +174,6 @@ export function CheckoutPage() {
                         <div className="flex-1">
                           <h4 className="text-white font-bold text-lg mb-2">{product.name}</h4>
                           <p className="text-gray-400 text-sm leading-relaxed">{product.description}</p>
-                          {selectedProducts.has(product.priceId) && (
-                            <ul className="mt-3 space-y-1">
-                              {product.includes.map((item, i) => (
-                                <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
-                                  <CheckCircle className="w-3 h-3 text-cyan-400 flex-shrink-0 mt-0.5" />
-                                  {item}
-                                </li>
-                              ))}
-                            </ul>
-                          )}
                         </div>
                         <div className="flex flex-col items-end ml-4">
                           <div className="text-2xl font-bold text-cyan-400">
@@ -243,7 +223,6 @@ export function CheckoutPage() {
                     )}
                   </div>
 
-                  {/* Full contract value */}
                   <div className="mb-2 flex justify-between items-center">
                     <span className="text-gray-400 text-sm">Contract Total</span>
                     <span className="text-gray-300 font-semibold text-sm line-through">
@@ -251,7 +230,6 @@ export function CheckoutPage() {
                     </span>
                   </div>
 
-                  {/* Payment schedule breakdown */}
                   {kickoffInstallment && (
                     <div className="mb-6">
                       <div className="bg-[#0a1628]/60 rounded-lg p-4 border border-cyan-400/20 mb-4">
@@ -273,7 +251,6 @@ export function CheckoutPage() {
                         </p>
                       </div>
 
-                      {/* Due today callout */}
                       <div className="bg-cyan-400/10 border border-cyan-400/40 rounded-lg p-4">
                         <div className="flex items-start gap-2 mb-2">
                           <Info className="w-4 h-4 text-cyan-400 mt-0.5 flex-shrink-0" />
