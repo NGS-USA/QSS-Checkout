@@ -3,11 +3,18 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, Download, Printer } from 'lucide-react';
 import jsPDF from 'jspdf';
 
+interface ServiceItem {
+  name: string;
+  description: string;
+  includes: string[];
+  price: number;
+}
+
 interface SessionData {
   customerName: string;
   customerEmail: string;
   amountPaid: number;
-  services: string[];
+  services: ServiceItem[];
   sessionId: string;
   createdAt: number;
 }
@@ -139,13 +146,23 @@ export function SuccessPage() {
     y += 14;
 
     session.services.forEach((service) => {
+      const lineHeight = 13;
+      const boxH = 20 + (service.includes.length * lineHeight);
       doc.setFillColor(20, 50, 80);
-      doc.roundedRect(margin, y - 12, contentW, 26, 4, 4, 'F');
-      doc.setFont('helvetica', 'normal');
+      doc.roundedRect(margin, y - 14, contentW, boxH, 4, 4, 'F');
+      doc.setFont('helvetica', 'bold');
       doc.setFontSize(11);
       doc.setTextColor(...white);
-      doc.text(service, margin + 10, y + 5);
-      y += 36;
+      doc.text(service.name, margin + 10, y);
+      y += lineHeight;
+      service.includes.forEach((item) => {
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(...gray);
+        doc.text(`• ${item}`, margin + 14, y);
+        y += lineHeight;
+      });
+      y += 14;
     });
 
     y += 10;
@@ -259,10 +276,18 @@ export function SuccessPage() {
 
                 <div className="border-t border-gray-700 pt-4 mb-4">
                   <p className="text-gray-500 text-xs uppercase tracking-wide mb-3">Services Purchased</p>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {session.services.map((s, i) => (
-                      <div key={i} className="bg-white/5 rounded-lg px-3 py-2 text-sm text-gray-200">
-                        {s}
+                      <div key={i} className="bg-white/5 rounded-lg px-3 py-3 border border-white/5">
+                        <p className="text-sm text-white font-medium mb-2">{s.name}</p>
+                        <ul className="space-y-1">
+                          {s.includes.map((item, j) => (
+                            <li key={j} className="flex items-start gap-2 text-xs text-gray-400">
+                              <CheckCircle className="w-3 h-3 text-cyan-400 flex-shrink-0 mt-0.5" />
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
                     ))}
                   </div>
