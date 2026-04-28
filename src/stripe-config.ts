@@ -6,6 +6,7 @@ export interface StripeProduct {
   price: number;
   currency: string;
   mode: 'payment' | 'subscription';
+  includes: string[];
 }
 
 export const stripeProducts: StripeProduct[] = [
@@ -15,7 +16,13 @@ export const stripeProducts: StripeProduct[] = [
     description: 'Controls exist; needs disciplined review before self-assessment inputs are finalized.',
     price: 7500.00,
     currency: 'usd',
-    mode: 'payment'
+    mode: 'payment',
+    includes: [
+      'Review of existing policy and procedure documentation',
+      'Control-by-control gap identification against CMMC Level 1 practices',
+      'Written findings report with prioritized remediation items',
+      'One-hour debrief call with your team',
+    ]
   },
   {
     priceId: 'price_1TMSbKGgFLISItFO94D6jQsT',
@@ -23,7 +30,14 @@ export const stripeProducts: StripeProduct[] = [
     description: 'Needs working sessions, evidence cleanup, structured prep before submission.',
     price: 12500.00,
     currency: 'usd',
-    mode: 'payment'
+    mode: 'payment',
+    includes: [
+      'Everything in Pre-Assessment Review',
+      'Up to 4 structured working sessions with your team',
+      'Evidence organization and labeling guidance',
+      'Draft self-assessment narrative support',
+      'Final readiness confirmation memo',
+    ]
   },
   {
     priceId: 'price_1TMSf6GgFLISItFOagQCQd5j',
@@ -31,7 +45,14 @@ export const stripeProducts: StripeProduct[] = [
     description: 'Needs drafting support, narrative help, and hands-on project leadership.',
     price: 18500.00,
     currency: 'usd',
-    mode: 'payment'
+    mode: 'payment',
+    includes: [
+      'Everything in Guided Readiness',
+      'Full policy and procedure drafting for missing documentation',
+      'Hands-on project management through remediation',
+      'Evidence package assembly and review',
+      'Mock self-assessment walkthrough before submission',
+    ]
   },
   {
     priceId: 'price_1TMSZzGgFLISItFOmYnpewEP',
@@ -39,7 +60,13 @@ export const stripeProducts: StripeProduct[] = [
     description: 'Existing docs; expert review against all 110 requirements.',
     price: 12500.00,
     currency: 'usd',
-    mode: 'payment'
+    mode: 'payment',
+    includes: [
+      'Review of existing documentation against all 110 CMMC Level 2 practices',
+      'Requirement-level gap analysis with evidence mapping',
+      'Written findings report with risk ratings',
+      'One-hour debrief call with your team',
+    ]
   },
   {
     priceId: 'price_1TMSdPGgFLISItFO33dVhDwu',
@@ -47,7 +74,14 @@ export const stripeProducts: StripeProduct[] = [
     description: 'Full requirement-level gaps, prioritized POA&M, evidence roadmap.',
     price: 22500.00,
     currency: 'usd',
-    mode: 'payment'
+    mode: 'payment',
+    includes: [
+      'Everything in Readiness Review',
+      'Prioritized Plan of Action & Milestones (POA&M)',
+      'Detailed evidence roadmap per requirement',
+      'Up to 3 working sessions to walk through findings',
+      'Remediation timeline and resource recommendations',
+    ]
   },
   {
     priceId: 'price_1TMSh0GgFLISItFOGwKcmQB0',
@@ -55,7 +89,14 @@ export const stripeProducts: StripeProduct[] = [
     description: 'One firm drives SSP, evidence packaging, mock interview prep.',
     price: 32500.00,
     currency: 'usd',
-    mode: 'payment'
+    mode: 'payment',
+    includes: [
+      'Everything in Gap Assessment & Evidence Roadmap',
+      'Full System Security Plan (SSP) drafting',
+      'End-to-end evidence packaging and organization',
+      'Mock C3PAO interview preparation',
+      'Hands-on project management through full assessment readiness',
+    ]
   },
 ];
 
