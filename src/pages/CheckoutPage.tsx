@@ -120,7 +120,7 @@ export function CheckoutPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {stripeProducts.slice(3).map((product) => (
+                  {stripeProducts.slice(0, 3).map((product) => (
                     <div
                       key={product.priceId}
                       onClick={() => toggleProduct(product.priceId)}
@@ -170,7 +170,7 @@ export function CheckoutPage() {
                 </div>
 
                 <div className="space-y-4">
-                  {stripeProducts.slice(0, 3).map((product) => (
+                  {stripeProducts.slice(3).map((product) => (
                     <div
                       key={product.priceId}
                       onClick={() => toggleProduct(product.priceId)}
