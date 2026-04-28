@@ -11,13 +11,77 @@ function setCORSHeaders(res: VercelResponse) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
 
-const SERVICE_NAMES: Record<string, string> = {
-  'price_1TMSh0GgFLISItFOGwKcmQB0': 'Readiness Build-Out (Level 2)',
-  'price_1TMSf6GgFLISItFOagQCQd5j': 'Readiness Build-Out (Level 1)',
-  'price_1TMSdPGgFLISItFO33dVhDwu': 'Gap Assessment & Evidence Roadmap',
-  'price_1TMSbKGgFLISItFO94D6jQsT': 'Guided Readiness',
-  'price_1TMSZzGgFLISItFOmYnpewEP': 'Readiness Review',
-  'price_1TMSWQGgFLISItFODtMv7CDz': 'Pre-Assessment Review',
+const SERVICE_CATALOG: Record<string, { name: string; description: string; includes: string[]; price: number }> = {
+  'price_1TMSWQGgFLISItFODtMv7CDz': {
+    name: 'Pre-Assessment Review',
+    description: 'Controls exist; needs disciplined review before self-assessment inputs are finalized.',
+    includes: [
+      'Review of existing policy and procedure documentation',
+      'Control-by-control gap identification against CMMC Level 1 practices',
+      'Written findings report with prioritized remediation items',
+      'One-hour debrief call with your team',
+    ],
+    price: 7500,
+  },
+  'price_1TMSbKGgFLISItFO94D6jQsT': {
+    name: 'Guided Readiness',
+    description: 'Needs working sessions, evidence cleanup, structured prep before submission.',
+    includes: [
+      'Everything in Pre-Assessment Review',
+      'Up to 4 structured working sessions with your team',
+      'Evidence organization and labeling guidance',
+      'Draft self-assessment narrative support',
+      'Final readiness confirmation memo',
+    ],
+    price: 12500,
+  },
+  'price_1TMSf6GgFLISItFOagQCQd5j': {
+    name: 'Readiness Build-Out (Lvl 1)',
+    description: 'Needs drafting support, narrative help, and hands-on project leadership.',
+    includes: [
+      'Everything in Guided Readiness',
+      'Full policy and procedure drafting for missing documentation',
+      'Hands-on project management through remediation',
+      'Evidence package assembly and review',
+      'Mock self-assessment walkthrough before submission',
+    ],
+    price: 18500,
+  },
+  'price_1TMSZzGgFLISItFOmYnpewEP': {
+    name: 'Readiness Review',
+    description: 'Existing docs; expert review against all 110 requirements.',
+    includes: [
+      'Review of existing documentation against all 110 CMMC Level 2 practices',
+      'Requirement-level gap analysis with evidence mapping',
+      'Written findings report with risk ratings',
+      'One-hour debrief call with your team',
+    ],
+    price: 12500,
+  },
+  'price_1TMSdPGgFLISItFO33dVhDwu': {
+    name: 'Gap Assessment & Evidence Roadmap',
+    description: 'Full requirement-level gaps, prioritized POA&M, evidence roadmap.',
+    includes: [
+      'Everything in Readiness Review',
+      'Prioritized Plan of Action & Milestones (POA&M)',
+      'Detailed evidence roadmap per requirement',
+      'Up to 3 working sessions to walk through findings',
+      'Remediation timeline and resource recommendations',
+    ],
+    price: 22500,
+  },
+  'price_1TMSh0GgFLISItFOGwKcmQB0': {
+    name: 'Readiness Build-Out (Lvl 2)',
+    description: 'One firm drives SSP, evidence packaging, mock interview prep.',
+    includes: [
+      'Everything in Gap Assessment & Evidence Roadmap',
+      'Full System Security Plan (SSP) drafting',
+      'End-to-end evidence packaging and organization',
+      'Mock C3PAO interview preparation',
+      'Hands-on project management through full assessment readiness',
+    ],
+    price: 32500,
+  },
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -35,7 +99,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const session = await stripe.checkout.sessions.retrieve(session_id);
 
     const priceIds = (session.metadata?.price_ids ?? '').split(',').filter(Boolean);
-    const services = priceIds.map((id) => SERVICE_NAMES[id] ?? id);
+    const services = priceIds.map((id) => SERVICE_CATALOG[id] ?? { name: id, description: '', includes: [], price: 0 });
     const kickoffCents = parseInt(session.metadata?.kickoff_amount_cents ?? '0', 10);
 
     return res.status(200).json({
