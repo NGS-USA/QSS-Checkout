@@ -61,7 +61,7 @@ export function SuccessPage() {
 
   const handlePrint = () => window.print();
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     if (!session) return;
 
     const doc = new jsPDF({ unit: 'pt', format: 'letter' });
@@ -84,16 +84,33 @@ export function SuccessPage() {
     doc.setFillColor(10, 25, 50);
     doc.rect(0, 0, pageW, 80, 'F');
 
-    // Company name
+    // Logo + company name
+    const logoImg = new Image();
+    logoImg.src = '/logo.png';
+    await new Promise<void>((resolve) => {
+      logoImg.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = logoImg.width;
+        canvas.height = logoImg.height;
+        canvas.getContext('2d')!.drawImage(logoImg, 0, 0);
+        const base64 = canvas.toDataURL('image/png');
+        const logoH = 44;
+        const logoW = (logoImg.width / logoImg.height) * logoH;
+        doc.addImage(base64, 'PNG', margin, 18, logoW, logoH);
+        resolve();
+      };
+      logoImg.onerror = () => resolve(); // skip logo if it fails to load
+    });
+
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(20);
     doc.setTextColor(...cyan);
-    doc.text('QUANTUM SHIELD SECURE', margin, 35);
+    doc.text('QUANTUM SHIELD SECURE', margin + 54, 35);
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(10);
     doc.setTextColor(...gray);
-    doc.text('CMMC Compliance Consulting', margin, 52);
+    doc.text('CMMC Compliance Consulting', margin + 54, 52);
 
     // "PAID" badge area
     doc.setFillColor(...green);
