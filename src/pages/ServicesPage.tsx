@@ -4,18 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircle, ShieldAlert, ArrowRight } from 'lucide-react';
 import { services, getSelectedPriceIds } from '../services-config';
 
-const categoryLabels: Record<string, string> = {
-  assessment: 'Assessment',
-  readiness:  'Readiness',
-  review:     'Review',
-};
-
-const categoryColors: Record<string, string> = {
-  assessment: 'text-yellow-400',
-  readiness:  'text-cyan-400',
-  review:     'text-purple-400',
-};
-
 export function ServicesPage() {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const navigate = useNavigate();
@@ -55,37 +43,76 @@ export function ServicesPage() {
           <p className="text-gray-300 text-lg">Select all the services that apply to your situation. We'll match you to the right packages.</p>
         </div>
 
-        {/* Service Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-10">
-          {services.map((service) => {
-            const isSelected = selected.has(service.id);
-            return (
-              <div
-                key={service.id}
-                onClick={() => toggle(service.id)}
-                className={`p-6 rounded-lg cursor-pointer transition-all border-2 ${
-                  isSelected
-                    ? 'bg-cyan-500/10 border-cyan-400 shadow-lg shadow-cyan-400/20'
-                    : 'bg-gradient-to-r from-[#1a3a52] to-[#0f2542] border-gray-600 hover:border-cyan-400/50'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1">
-                    <span className={`text-xs font-bold uppercase tracking-widest ${categoryColors[service.category]}`}>
-                      {categoryLabels[service.category]}
-                    </span>
-                    <h3 className="text-white font-bold text-lg mt-1 mb-2">{service.name}</h3>
-                    <p className="text-gray-400 text-sm leading-relaxed">{service.description}</p>
-                  </div>
-                  <div className={`w-6 h-6 rounded border-2 flex-shrink-0 mt-1 flex items-center justify-center transition-all ${
-                    isSelected ? 'bg-cyan-400 border-cyan-400' : 'border-gray-600'
-                  }`}>
-                    {isSelected && <CheckCircle className="w-5 h-5 text-[#0a1628]" />}
+        {/* Level 1 Services */}
+        <div className="mb-10">
+          <div className="bg-gradient-to-r from-[#1a3a52] to-[#0f2542] rounded-lg px-5 py-3 mb-4 border border-cyan-400/30">
+            <h3 className="text-white font-bold text-base">Level 1 — FCI Environments</h3>
+            <p className="text-gray-400 text-xs mt-0.5">For organizations focused on Federal Contract Information (FCI) protection</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {services.filter(s => s.level === 1).map((service) => {
+              const isSelected = selected.has(service.id);
+              return (
+                <div
+                  key={service.id}
+                  onClick={() => toggle(service.id)}
+                  className={`p-5 rounded-lg cursor-pointer transition-all border-2 ${
+                    isSelected
+                      ? 'bg-cyan-500/10 border-cyan-400 shadow-lg shadow-cyan-400/20'
+                      : 'bg-gradient-to-r from-[#1a3a52] to-[#0f2542] border-gray-600 hover:border-cyan-400/50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="text-white font-bold text-base mb-1">{service.name}</h3>
+                      <p className="text-gray-400 text-sm leading-relaxed">{service.description}</p>
+                    </div>
+                    <div className={`w-6 h-6 rounded border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${
+                      isSelected ? 'bg-cyan-400 border-cyan-400' : 'border-gray-600'
+                    }`}>
+                      {isSelected && <CheckCircle className="w-5 h-5 text-[#0a1628]" />}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Level 2 Services */}
+        <div className="mb-10">
+          <div className="bg-gradient-to-r from-[#1a3a52] to-[#0f2542] rounded-lg px-5 py-3 mb-4 border border-purple-400/30">
+            <h3 className="text-white font-bold text-base">Level 2 — 110 Requirements</h3>
+            <p className="text-gray-400 text-xs mt-0.5">For organizations pursuing full CMMC Level 2 certification readiness</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {services.filter(s => s.level === 2).map((service) => {
+              const isSelected = selected.has(service.id);
+              return (
+                <div
+                  key={service.id}
+                  onClick={() => toggle(service.id)}
+                  className={`p-5 rounded-lg cursor-pointer transition-all border-2 ${
+                    isSelected
+                      ? 'bg-purple-500/10 border-purple-400 shadow-lg shadow-purple-400/20'
+                      : 'bg-gradient-to-r from-[#1a3a52] to-[#0f2542] border-gray-600 hover:border-purple-400/50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <h3 className="text-white font-bold text-base mb-1">{service.name}</h3>
+                      <p className="text-gray-400 text-sm leading-relaxed">{service.description}</p>
+                    </div>
+                    <div className={`w-6 h-6 rounded border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${
+                      isSelected ? 'bg-purple-400 border-purple-400' : 'border-gray-600'
+                    }`}>
+                      {isSelected && <CheckCircle className="w-5 h-5 text-[#0a1628]" />}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         {/* Bottom bar */}
