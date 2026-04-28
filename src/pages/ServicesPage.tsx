@@ -31,9 +31,9 @@ export function ServicesPage() {
 
         {/* Header */}
         <div className="flex items-center space-x-3 mb-10">
-          <ShieldAlert className="w-10 h-10 text-cyan-400" />
+          <img src="/logo.png" alt="Company Logo" className="h-24" />
           <div>
-            <h1 className="text-3xl font-bold text-white">QUANTUM SHIELD</h1>
+            <h1 className="text-3xl font-bold text-white">QUANTUM SHIELD SECURE</h1>
             <p className="text-cyan-400 text-sm font-semibold">Compliance Consulting</p>
           </div>
         </div>
