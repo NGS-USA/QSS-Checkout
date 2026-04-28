@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { CheckCircle, ArrowLeft, Download, Printer } from 'lucide-react';
+import jsPDF from 'jspdf';
 
 interface SessionData {
   customerName: string;
@@ -47,35 +48,163 @@ export function SuccessPage() {
   const handlePrint = () => window.print();
 
   const handleDownload = () => {
-    const receiptHtml = receiptRef.current?.innerHTML ?? '';
-    const html = `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <meta charset="utf-8" />
-          <title>Quantum Shield Secure — Receipt</title>
-          <style>
-            body { font-family: Arial, sans-serif; padding: 40px; max-width: 600px; margin: 0 auto; color: #111; }
-            h1 { font-size: 22px; margin-bottom: 4px; }
-            .subtitle { color: #555; font-size: 14px; margin-bottom: 24px; }
-            .label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
-            .value { font-size: 15px; margin-bottom: 16px; }
-            .divider { border: none; border-top: 1px solid #ddd; margin: 20px 0; }
-            .service { background: #f5f5f5; border-radius: 6px; padding: 8px 12px; margin-bottom: 8px; font-size: 14px; }
-            .amount { font-size: 28px; font-weight: bold; color: #0a9396; margin: 8px 0; }
-            .note { font-size: 12px; color: #888; margin-top: 24px; }
-            .session { font-size: 10px; color: #aaa; word-break: break-all; margin-top: 8px; }
-          </style>
-        </head>
-        <body>${receiptHtml}</body>
-      </html>`;
-    const blob = new Blob([html], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `QSS-Receipt-${sessionId?.slice(-8) ?? 'download'}.html`;
-    a.click();
-    URL.revokeObjectURL(url);
+    if (!session) return;
+
+    const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+    const pageW = doc.internal.pageSize.getWidth();
+    const margin = 50;
+    const contentW = pageW - margin * 2;
+    let y = 50;
+
+    const cyan = [0, 188, 212] as const;
+    const dark = [15, 37, 66] as const;
+    const gray = [120, 140, 160] as const;
+    const white = [255, 255, 255] as const;
+    const green = [34, 197, 94] as const;
+
+    // Background
+    doc.setFillColor(...dark);
+    doc.rect(0, 0, pageW, doc.internal.pageSize.getHeight(), 'F');
+
+    // Header bar
+    doc.setFillColor(10, 25, 50);
+    doc.rect(0, 0, pageW, 80, 'F');
+
+    // Company name
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(...cyan);
+    doc.text('QUANTUM SHIELD SECURE', margin, 35);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...gray);
+    doc.text('CMMC Compliance Consulting', margin, 52);
+
+    // "PAID" badge area
+    doc.setFillColor(...green);
+    doc.roundedRect(pageW - margin - 50, 20, 50, 22, 4, 4, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(10);
+    doc.setTextColor(...white);
+    doc.text('PAID', pageW - margin - 25, 35, { align: 'center' });
+
+    y = 105;
+
+    // Receipt title
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(22);
+    doc.setTextColor(...white);
+    doc.text('Payment Receipt', margin, y);
+    y += 30;
+
+    // Divider
+    doc.setDrawColor(...cyan);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, pageW - margin, y);
+    y += 20;
+
+    // Customer & Date row
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...gray);
+    doc.text('CUSTOMER', margin, y);
+    doc.text('DATE', pageW / 2, y);
+    y += 14;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(...white);
+    doc.text(session.customerName || '—', margin, y);
+    doc.text(formatDate(session.createdAt), pageW / 2, y);
+    y += 16;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...gray);
+    doc.text(session.customerEmail, margin, y);
+    y += 30;
+
+    // Divider
+    doc.setDrawColor(40, 70, 100);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, pageW - margin, y);
+    y += 20;
+
+    // Services
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...gray);
+    doc.text('SERVICES PURCHASED', margin, y);
+    y += 14;
+
+    session.services.forEach((service) => {
+      doc.setFillColor(20, 50, 80);
+      doc.roundedRect(margin, y - 12, contentW, 26, 4, 4, 'F');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(11);
+      doc.setTextColor(...white);
+      doc.text(service, margin + 10, y + 5);
+      y += 36;
+    });
+
+    y += 10;
+
+    // Divider
+    doc.setDrawColor(40, 70, 100);
+    doc.line(margin, y, pageW - margin, y);
+    y += 20;
+
+    // Amount row
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8);
+    doc.setTextColor(...gray);
+    doc.text('KICKOFF INSTALLMENT PAID', margin, y);
+    y += 14;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(...gray);
+    doc.text('Remaining milestones will be invoiced separately', margin, y);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(26);
+    doc.setTextColor(...cyan);
+    doc.text(formatCurrency(session.amountPaid), pageW - margin, y + 2, { align: 'right' });
+    y += 40;
+
+    // Divider
+    doc.setDrawColor(40, 70, 100);
+    doc.line(margin, y, pageW - margin, y);
+    y += 16;
+
+    // Session ID
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(80, 100, 120);
+    doc.text(`Session: ${session.sessionId}`, margin, y);
+    y += 30;
+
+    // Footer
+    doc.setFillColor(10, 25, 50);
+    doc.rect(0, doc.internal.pageSize.getHeight() - 50, pageW, 50, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(...gray);
+    doc.text(
+      'This receipt confirms your kickoff installment payment. A team member will contact you shortly.',
+      pageW / 2,
+      doc.internal.pageSize.getHeight() - 28,
+      { align: 'center' }
+    );
+    doc.text(
+      'quantumshieldsecure.com',
+      pageW / 2,
+      doc.internal.pageSize.getHeight() - 14,
+      { align: 'center' }
+    );
+
+    doc.save(`QSS-Receipt-${session.sessionId.slice(-8)}.pdf`);
   };
 
   if (loading) {
