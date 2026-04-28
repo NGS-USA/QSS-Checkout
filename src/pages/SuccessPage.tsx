@@ -178,13 +178,6 @@ export function SuccessPage() {
     doc.line(margin, y, pageW - margin, y);
     y += 16;
 
-    // Session ID
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7);
-    doc.setTextColor(80, 100, 120);
-    doc.text(`Session: ${session.sessionId}`, margin, y);
-    y += 30;
-
     // Footer
     doc.setFillColor(10, 25, 50);
     doc.rect(0, doc.internal.pageSize.getHeight() - 50, pageW, 50, 'F');
@@ -285,9 +278,6 @@ export function SuccessPage() {
                   </div>
                 </div>
 
-                <div className="mt-4 pt-4 border-t border-gray-700">
-                  <p className="text-gray-600 text-xs break-all">Session: {session.sessionId}</p>
-                </div>
               </>
             ) : (
               <div className="text-center py-4">
