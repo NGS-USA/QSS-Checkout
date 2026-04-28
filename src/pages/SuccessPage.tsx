@@ -10,11 +10,18 @@ interface ServiceItem {
   price: number;
 }
 
+interface PaymentInstallment {
+  label: string;
+  amount: number;
+}
+
 interface SessionData {
   customerName: string;
   customerEmail: string;
   amountPaid: number;
   services: ServiceItem[];
+  contractTotal: number;
+  paymentSchedule: PaymentInstallment[];
   sessionId: string;
   createdAt: number;
 }
@@ -172,18 +179,46 @@ export function SuccessPage() {
     doc.line(margin, y, pageW - margin, y);
     y += 20;
 
-    // Amount row
+    // Contract total
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.setTextColor(...gray);
+    doc.text('Contract Total', margin, y);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(...white);
+    doc.text(formatCurrency(session.contractTotal), pageW - margin, y, { align: 'right' });
+    y += 20;
+
+    // Payment schedule box
+    const scheduleBoxH = session.paymentSchedule.length * 18 + 24;
+    doc.setFillColor(20, 50, 80);
+    doc.roundedRect(margin, y, contentW, scheduleBoxH, 4, 4, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(...gray);
+    doc.text('PAYMENT SCHEDULE', margin + 10, y + 13);
+    y += 24;
+    session.paymentSchedule.forEach((installment, i) => {
+      doc.setFont('helvetica', i === 0 ? 'bold' : 'normal');
+      doc.setFontSize(9);
+      doc.setTextColor(i === 0 ? cyan[0] : 180, i === 0 ? cyan[1] : 200, i === 0 ? cyan[2] : 220);
+      doc.text(installment.label, margin + 10, y);
+      doc.setFont('helvetica', 'bold');
+      doc.text(formatCurrency(installment.amount), pageW - margin - 10, y, { align: 'right' });
+      y += 18;
+    });
+    y += 16;
+
+    // Paid today
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8);
     doc.setTextColor(...gray);
-    doc.text('KICKOFF INSTALLMENT PAID', margin, y);
+    doc.text('PAID TODAY (KICKOFF)', margin, y);
     y += 14;
-
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(...gray);
     doc.text('Remaining milestones will be invoiced separately', margin, y);
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(26);
     doc.setTextColor(...cyan);
@@ -294,9 +329,33 @@ export function SuccessPage() {
                 </div>
 
                 <div className="border-t border-gray-700 pt-4">
+                  {/* Contract total */}
+                  <div className="flex justify-between items-center mb-3">
+                    <p className="text-gray-400 text-sm">Contract Total</p>
+                    <p className="text-gray-300 text-sm font-semibold">{formatCurrency(session.contractTotal)}</p>
+                  </div>
+
+                  {/* Payment schedule */}
+                  <div className="bg-white/5 rounded-lg p-3 mb-3 border border-white/5">
+                    <p className="text-gray-500 text-xs uppercase tracking-wide mb-2">Payment Schedule</p>
+                    <div className="space-y-1.5">
+                      {session.paymentSchedule.map((installment, i) => (
+                        <div key={i} className="flex justify-between items-center">
+                          <span className={`text-xs ${i === 0 ? 'text-cyan-300 font-semibold' : 'text-gray-400'}`}>
+                            {installment.label}
+                          </span>
+                          <span className={`text-xs font-semibold ${i === 0 ? 'text-cyan-300' : 'text-white'}`}>
+                            {formatCurrency(installment.amount)}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Paid today */}
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-gray-500 text-xs uppercase tracking-wide mb-1">Kickoff Installment Paid</p>
+                      <p className="text-gray-500 text-xs uppercase tracking-wide mb-0.5">Paid Today (Kickoff)</p>
                       <p className="text-gray-400 text-xs">Remaining milestones invoiced separately</p>
                     </div>
                     <p className="text-cyan-400 text-2xl font-bold">{formatCurrency(session.amountPaid)}</p>

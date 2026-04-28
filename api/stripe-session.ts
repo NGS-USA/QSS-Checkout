@@ -101,12 +101,36 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const priceIds = (session.metadata?.price_ids ?? '').split(',').filter(Boolean);
     const services = priceIds.map((id) => SERVICE_CATALOG[id] ?? { name: id, description: '', includes: [], price: 0 });
     const kickoffCents = parseInt(session.metadata?.kickoff_amount_cents ?? '0', 10);
+    const contractTotal = services.reduce((sum, s) => sum + s.price, 0);
+
+    function getPaymentSchedule(total: number) {
+      if (total < 10000) {
+        return [
+          { label: 'Due at Kickoff (50%)', amount: total * 0.5 },
+          { label: 'Due at Final Delivery (50%)', amount: total * 0.5 },
+        ];
+      } else if (total <= 25000) {
+        return [
+          { label: 'Due at Kickoff (40%)', amount: total * 0.4 },
+          { label: 'Due at Midpoint (40%)', amount: total * 0.4 },
+          { label: 'Due at Final Readout (20%)', amount: total * 0.2 },
+        ];
+      } else {
+        return [
+          { label: 'Due at Kickoff (40%)', amount: total * 0.4 },
+          { label: 'Due at Document Package Delivery (30%)', amount: total * 0.3 },
+          { label: 'Due at Final Readiness Review (30%)', amount: total * 0.3 },
+        ];
+      }
+    }
 
     return res.status(200).json({
       customerName: session.customer_details?.name ?? '',
       customerEmail: session.customer_details?.email ?? '',
       amountPaid: kickoffCents / 100,
       services,
+      contractTotal,
+      paymentSchedule: getPaymentSchedule(contractTotal),
       sessionId: session.id,
       createdAt: session.created,
     });
