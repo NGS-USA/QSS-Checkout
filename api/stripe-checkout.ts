@@ -54,7 +54,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ error: 'At least one service must be selected.' });
     }
 
-    const invalidIds = price_ids.filter((id: unknown) => !ALLOWED_PRICE_IDS.has(id));
+    const invalidIds = price_ids.filter((id: string) => !ALLOWED_PRICE_IDS.has(id));
     if (invalidIds.length > 0) {
       console.warn('[stripe-checkout] Blocked invalid price IDs:', { invalidIds, ip });
       return res.status(400).json({ error: 'Invalid selection. Please refresh and try again.' });
