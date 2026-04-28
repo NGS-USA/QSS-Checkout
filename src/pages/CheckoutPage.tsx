@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { stripeProducts, formatPrice, getPaymentSchedule } from '../stripe-config';
 import { CheckCircle, Loader2, Info } from 'lucide-react';
 
 export function CheckoutPage() {
-  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(new Set());
+  const { state } = useLocation();
+  const [selectedProducts, setSelectedProducts] = useState<Set<string>>(
+    new Set((state as any)?.preselected ?? [])
+  );
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
 
