@@ -5,48 +5,29 @@ export interface StripeProduct {
   price: number;
   currency: string;
   mode: 'payment' | 'subscription';
+  includes: string[];
 }
 
 export const stripeProducts: StripeProduct[] = [
-  {
-    priceId: 'price_1TMSZzGgFLISItFOmYnpewEP',
-    name: 'Readiness Review',
-    description: 'Existing docs; expert review against all 110 requirements.',
-    price: 12500.00,
-    currency: 'usd',
-    mode: 'payment'
-  },
-  {
-    priceId: 'price_1TMSdPGgFLISItFO33dVhDwu',
-    name: 'Gap Assessment & Evidence Roadmap',
-    description: 'Full requirement-level gaps, prioritized POA&M, evidence roadmap.',
-    price: 22500.00,
-    currency: 'usd',
-    mode: 'payment'
-  },
   {
     priceId: 'price_1TMSh0GgFLISItFOGwKcmQB0',
     name: 'Readiness Build-Out (Lvl 2)',
     description: 'One firm drives SSP, evidence packaging, mock interview prep.',
     price: 32500.00,
     currency: 'usd',
-    mode: 'payment'
-  },
-  {
-    priceId: 'price_1TMSWQGgFLISItFODtMv7CDz',
-    name: 'Pre-Assessment Review',
-    description: 'Controls exist; needs disciplined review before self-assessment inputs are finalized.',
-    price: 7500.00,
-    currency: 'usd',
-    mode: 'payment'
-  },
-  {
-    priceId: 'price_1TMSbKGgFLISItFO94D6jQsT',
-    name: 'Guided Readiness',
-    description: 'Needs working sessions, evidence cleanup, structured prep before submission.',
-    price: 12500.00,
-    currency: 'usd',
-    mode: 'payment'
+    mode: 'payment',
+    includes: [
+      'Scoping sessions & document review',
+      'Requirement-level status worksheet (110 requirements)',
+      'Prioritized gap list & executive briefing',
+      'Deep artifact analysis & detailed findings workbook',
+      'Prioritized POA&M & evidence roadmap',
+      'Remediation workshops',
+      'SSP & policy tailoring',
+      'Evidence packaging & upload narrative support',
+      'Mock interview & assessor-response prep',
+      'One structured validation pass',
+    ],
   },
   {
     priceId: 'price_1TMSf6GgFLISItFOagQCQd5j',
@@ -54,7 +35,82 @@ export const stripeProducts: StripeProduct[] = [
     description: 'Needs drafting support, narrative help, and hands-on project leadership.',
     price: 18500.00,
     currency: 'usd',
-    mode: 'payment'
+    mode: 'payment',
+    includes: [
+      'Scoping interview & Level 1 requirement review',
+      'Targeted evidence review & stakeholder interviews',
+      'Gap summary & upload-input worksheet draft',
+      'Executive readout',
+      'Working sessions & evidence index build-out',
+      'Template tailoring & remediation check-back',
+      'Leadership debrief',
+      'Policy & procedure tailoring',
+      'Assessment narrative support',
+      'Evidence packaging & upload-prep workshop',
+      'Management review package',
+    ],
+  },
+  {
+    priceId: 'price_1TMSdPGgFLISItFO33dVhDwu',
+    name: 'Gap Assessment & Evidence Roadmap',
+    description: 'Full requirement-level gaps, prioritized POA&M, evidence roadmap.',
+    price: 22500.00,
+    currency: 'usd',
+    mode: 'payment',
+    includes: [
+      'Scoping sessions & document review',
+      'Requirement-level status worksheet (110 requirements)',
+      'Prioritized gap list & executive briefing',
+      'Deep artifact analysis & detailed findings workbook',
+      'Prioritized POA&M & evidence roadmap',
+      'Remediation workshops',
+    ],
+  },
+  {
+    priceId: 'price_1TMSbKGgFLISItFO94D6jQsT',
+    name: 'Guided Readiness',
+    description: 'Needs working sessions, evidence cleanup, structured prep before submission.',
+    price: 12500.00,
+    currency: 'usd',
+    mode: 'payment',
+    includes: [
+      'Scoping interview & Level 1 requirement review',
+      'Targeted evidence review & stakeholder interviews',
+      'Gap summary & upload-input worksheet draft',
+      'Executive readout',
+      'Working sessions & evidence index build-out',
+      'Template tailoring & remediation check-back',
+      'Leadership debrief',
+    ],
+  },
+  {
+    priceId: 'price_1TMSZzGgFLISItFOmYnpewEP',
+    name: 'Readiness Review',
+    description: 'Existing docs; expert review against all 110 requirements.',
+    price: 12500.00,
+    currency: 'usd',
+    mode: 'payment',
+    includes: [
+      'Scoping sessions & document review',
+      'Requirement-level status worksheet (110 requirements)',
+      'Prioritized gap list',
+      'Executive briefing',
+    ],
+  },
+  {
+    priceId: 'price_1TMSWQGgFLISItFODtMv7CDz',
+    name: 'Pre-Assessment Review',
+    description: 'Controls exist; needs disciplined review before self-assessment inputs are finalized.',
+    price: 7500.00,
+    currency: 'usd',
+    mode: 'payment',
+    includes: [
+      'Scoping interview & Level 1 requirement review',
+      'Targeted evidence review & stakeholder interviews',
+      'Gap summary',
+      'Upload-input worksheet draft',
+      'Executive readout',
+    ],
   },
 ];
 

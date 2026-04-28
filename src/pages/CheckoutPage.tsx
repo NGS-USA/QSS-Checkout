@@ -134,6 +134,16 @@ export function CheckoutPage() {
                         <div className="flex-1">
                           <h4 className="text-white font-bold text-lg mb-2">{product.name}</h4>
                           <p className="text-gray-400 text-sm leading-relaxed">{product.description}</p>
+                          {selectedProducts.has(product.priceId) && (
+                            <ul className="mt-3 space-y-1">
+                              {product.includes.map((item, i) => (
+                                <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
+                                  <CheckCircle className="w-3 h-3 text-cyan-400 flex-shrink-0 mt-0.5" />
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
                         <div className="flex flex-col items-end ml-4">
                           <div className="text-2xl font-bold text-cyan-400">
@@ -174,6 +184,16 @@ export function CheckoutPage() {
                         <div className="flex-1">
                           <h4 className="text-white font-bold text-lg mb-2">{product.name}</h4>
                           <p className="text-gray-400 text-sm leading-relaxed">{product.description}</p>
+                          {selectedProducts.has(product.priceId) && (
+                            <ul className="mt-3 space-y-1">
+                              {product.includes.map((item, i) => (
+                                <li key={i} className="flex items-start gap-2 text-xs text-gray-300">
+                                  <CheckCircle className="w-3 h-3 text-cyan-400 flex-shrink-0 mt-0.5" />
+                                  {item}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
                         </div>
                         <div className="flex flex-col items-end ml-4">
                           <div className="text-2xl font-bold text-cyan-400">
